@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:file_selector/file_selector.dart';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:universal_html/html.dart' as html;
+import 'file_selector_service.dart';
 
 void main() {
   runApp(const FilePickerExample());
@@ -13,22 +13,23 @@ class FilePickerExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: FilePickerHome(),
+    return MaterialApp(
+      home: FilePickerHome(fileSelectorService: FileSelectorService()),
     );
   }
 }
 
 class FilePickerHome extends StatefulWidget {
-  const FilePickerHome({super.key});
+  final FileSelectorService fileSelectorService;
+
+  const FilePickerHome({super.key, required this.fileSelectorService});
 
   @override
   _FilePickerHomeState createState() => _FilePickerHomeState();
 }
 
 class _FilePickerHomeState extends State<FilePickerHome> {
-  // Pre-populate the variable with "Hello, world."
-  Uint8List fileContent = Uint8List.fromList('Hello, world.'.codeUnits);
+  Uint8List? fileContent;
 
   @override
   Widget build(BuildContext context) {
@@ -37,26 +38,47 @@ class _FilePickerHomeState extends State<FilePickerHome> {
         title: const Text('File Picker Example'),
       ),
       body: Center(
-        child: ElevatedButton(
-          onPressed: _writeFile,
-          child: const Text('Write'),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            ElevatedButton(
+              onPressed: _readFile,
+              child: const Text('Read'),
+            ),
+            ElevatedButton(
+              onPressed: fileContent == null ? null : _writeFile,
+              child: const Text('Write'),
+            ),
+          ],
         ),
       ),
     );
   }
 
+  Future<void> _readFile() async {
+    final file = await widget.fileSelectorService.openFileDialog();
+    if (file != null) {
+      final content = await file.readAsBytes();
+      setState(() {
+        fileContent = content;
+      });
+    }
+  }
+
   Future<void> _writeFile() async {
+    if (fileContent == null) return;
+
     if (kIsWeb) {
       final filename = await _promptFileName();
       if (filename != null) {
-        _downloadFileWeb(fileContent, filename);
+        _downloadFileWeb(fileContent!, filename);
       }
     } else {
-      const XTypeGroup typeGroup = XTypeGroup(label: 'any', extensions: ['*']);
-      final saveLocation = await getSaveLocation(suggestedName: 'output.txt');
+      final saveLocation =
+          await widget.fileSelectorService.getSaveLocationDialog();
       if (saveLocation != null) {
-        final file = XFile.fromData(fileContent, name: 'output.txt');
-        await file.saveTo(saveLocation.path);
+        await widget.fileSelectorService
+            .saveFile(fileContent!, saveLocation.path);
       }
     }
   }
@@ -90,7 +112,7 @@ class _FilePickerHomeState extends State<FilePickerHome> {
   void _downloadFileWeb(Uint8List data, String filename) {
     final blob = html.Blob([data]);
     final url = html.Url.createObjectUrlFromBlob(blob);
-    final anchor = html.AnchorElement(href: url)
+    html.AnchorElement(href: url)
       ..setAttribute('download', filename)
       ..click();
     html.Url.revokeObjectUrl(url);
