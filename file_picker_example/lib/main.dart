@@ -55,7 +55,7 @@ class FilePickerHomeState extends State<FilePickerHome> {
   }
 
   Future<void> _readFile() async {
-    const typeGroup = XTypeGroup(label: 'any', webWildCards: ['*']);
+    const typeGroup = XTypeGroup(label: 'any', extensions: []);
     final file = await openFile(acceptedTypeGroups: [typeGroup]);
     if (file != null) {
       final content = await file.readAsBytes();
