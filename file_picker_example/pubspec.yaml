@@ -37,6 +37,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   file_selector: ^1.0.3
 
+  universal_html: any
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -53,6 +54,7 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
   path: any
+  file_selector_platform_interface: any
 flutter:
 
   # The following line ensures that the Material Icons font is

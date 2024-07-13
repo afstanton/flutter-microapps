@@ -8,6 +8,7 @@ import 'package:file_selector_platform_interface/file_selector_platform_interfac
 
 // Mock class for XFile
 class MockXFile implements XFile {
+  @override
   final String path;
   final Uint8List bytes;
 
