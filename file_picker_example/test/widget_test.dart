@@ -6,6 +6,7 @@ import 'package:path/path.dart' as path;
 import 'package:flutter/services.dart';
 import 'package:file_selector_platform_interface/file_selector_platform_interface.dart';
 
+// Mock class for XFile
 class MockXFile implements XFile {
   final String path;
   final Uint8List bytes;
@@ -21,7 +22,6 @@ class MockXFile implements XFile {
   @override
   Future<int> length() async => bytes.length;
 
-  // Implement other methods as needed...
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
@@ -35,6 +35,10 @@ void main() {
     tempFilePath = path.join(tempDir.path, 'temp_file.txt');
     fileContent = Uint8List.fromList('Hello, world.'.codeUnits);
 
+    final tempFile = File(tempFilePath);
+    await tempFile.writeAsBytes(fileContent);
+
+    // Mock method call handler
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
             const MethodChannel('plugins.flutter.io/file_selector'),
@@ -45,17 +49,22 @@ void main() {
       return null;
     });
 
+    // Setting the mock file selector platform
     FileSelectorPlatform.instance = MockFileSelectorPlatform(
       mockFile: MockXFile(tempFilePath, fileContent),
     );
   });
 
   tearDown(() {
+    // Clear the mock method call handler
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
             const MethodChannel('plugins.flutter.io/file_selector'), null);
 
-    FileSelectorPlatform.instance = FileSelectorPlatform.instance;
+    final tempFile = File(tempFilePath);
+    if (tempFile.existsSync()) {
+      tempFile.deleteSync();
+    }
   });
 
   testWidgets('Read button opens file picker and reads file content',
@@ -79,6 +88,7 @@ void main() {
   });
 }
 
+// Mock file selector platform
 class MockFileSelectorPlatform extends FileSelectorPlatform {
   final MockXFile mockFile;
 
