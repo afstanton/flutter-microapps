@@ -76,11 +76,12 @@ void main() {
 
     // Verify initial state
     expect(find.text('Read'), findsOneWidget);
-    expect(find.byType(ElevatedButton), findsOneWidget);
+    expect(find.byType(ElevatedButton),
+        findsNWidgets(2)); // Now there are two buttons
     expect(find.textContaining('File Content:'), findsNothing);
 
     // Simulate tapping the Read button
-    await tester.tap(find.text('Read'));
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Read'));
     await tester.pumpAndSettle();
 
     // Verify file content after reading
