@@ -88,6 +88,18 @@ void main() {
     expect(find.textContaining('File Content: ${fileContent.length} bytes'),
         findsOneWidget);
   });
+
+  testWidgets('Write button is disabled before reading a file',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(const MaterialApp(
+      home: FilePickerHome(),
+    ));
+
+    // Verify Write button is present and disabled before reading a file
+    final writeButton = tester
+        .widget<ElevatedButton>(find.widgetWithText(ElevatedButton, 'Write'));
+    expect(writeButton.onPressed, isNull);
+  });
 }
 
 // Mock file selector platform
