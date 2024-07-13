@@ -55,13 +55,21 @@ class FilePickerHomeState extends State<FilePickerHome> {
   }
 
   Future<void> _readFile() async {
+    debugPrint('Starting _readFile method');
     const typeGroup = XTypeGroup(label: 'any', extensions: []);
+    debugPrint('About to call openFile');
     final file = await openFile(acceptedTypeGroups: [typeGroup]);
+    debugPrint('openFile returned: $file');
     if (file != null) {
+      debugPrint('About to read file bytes');
       final content = await file.readAsBytes();
+      debugPrint('File content length: ${content.length}');
       setState(() {
         fileContent = content;
       });
+      debugPrint('setState called with new fileContent');
+    } else {
+      debugPrint('No file was selected');
     }
   }
 }
