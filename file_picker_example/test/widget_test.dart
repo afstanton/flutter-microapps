@@ -100,6 +100,22 @@ void main() {
         .widget<ElevatedButton>(find.widgetWithText(ElevatedButton, 'Write'));
     expect(writeButton.onPressed, isNull);
   });
+
+  testWidgets('Write button is enabled after reading a file',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(const MaterialApp(
+      home: FilePickerHome(),
+    ));
+
+    // Simulate tapping the Read button
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Read'));
+    await tester.pumpAndSettle();
+
+    // Verify Write button is enabled after reading a file
+    final writeButton = tester
+        .widget<ElevatedButton>(find.widgetWithText(ElevatedButton, 'Write'));
+    expect(writeButton.onPressed, isNotNull);
+  });
 }
 
 // Mock file selector platform
