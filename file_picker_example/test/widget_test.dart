@@ -30,6 +30,7 @@ class MockXFile implements XFile {
 void main() {
   late String tempFilePath;
   late Uint8List fileContent;
+  bool writeCalled = false;
 
   setUp(() async {
     final tempDir = Directory.systemTemp.createTempSync();
@@ -53,6 +54,7 @@ void main() {
     // Setting the mock file selector platform
     FileSelectorPlatform.instance = MockFileSelectorPlatform(
       mockFile: MockXFile(tempFilePath, fileContent),
+      saveFilePath: tempFilePath,
     );
   });
 
@@ -89,22 +91,36 @@ void main() {
         findsOneWidget);
   });
 
-  testWidgets('Write button is disabled before reading a file',
+  testWidgets('Write button is enabled after reading a file',
       (WidgetTester tester) async {
     await tester.pumpWidget(const MaterialApp(
       home: FilePickerHome(),
     ));
 
-    // Verify Write button is present and disabled before reading a file
+    // Verify initial state
+    expect(find.text('Write'), findsOneWidget);
     final writeButton = tester
         .widget<ElevatedButton>(find.widgetWithText(ElevatedButton, 'Write'));
     expect(writeButton.onPressed, isNull);
+
+    // Simulate tapping the Read button
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Read'));
+    await tester.pumpAndSettle();
+
+    // Verify Write button is enabled after reading a file
+    final enabledWriteButton = tester
+        .widget<ElevatedButton>(find.widgetWithText(ElevatedButton, 'Write'));
+    expect(enabledWriteButton.onPressed, isNotNull);
   });
 
-  testWidgets('Write button is enabled after reading a file',
+  testWidgets('Write button calls the correct function when clicked',
       (WidgetTester tester) async {
-    await tester.pumpWidget(const MaterialApp(
-      home: FilePickerHome(),
+    await tester.pumpWidget(MaterialApp(
+      home: FilePickerHome(
+        onWrite: () {
+          writeCalled = true;
+        },
+      ),
     ));
 
     // Simulate tapping the Read button
@@ -112,17 +128,28 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify Write button is enabled after reading a file
-    final writeButton = tester
+    final enabledWriteButton = tester
         .widget<ElevatedButton>(find.widgetWithText(ElevatedButton, 'Write'));
-    expect(writeButton.onPressed, isNotNull);
+    expect(enabledWriteButton.onPressed, isNotNull);
+
+    // Simulate tapping the Write button
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Write'));
+    await tester.pumpAndSettle();
+
+    // Verify the callback is called
+    expect(writeCalled, isTrue);
   });
 }
 
 // Mock file selector platform
 class MockFileSelectorPlatform extends FileSelectorPlatform {
   final MockXFile mockFile;
+  final String saveFilePath;
 
-  MockFileSelectorPlatform({required this.mockFile});
+  MockFileSelectorPlatform({
+    required this.mockFile,
+    required this.saveFilePath,
+  });
 
   @override
   Future<XFile?> openFile({
@@ -131,5 +158,13 @@ class MockFileSelectorPlatform extends FileSelectorPlatform {
     String? confirmButtonText,
   }) async {
     return mockFile;
+  }
+
+  @override
+  Future<FileSaveLocation?> getSaveLocation({
+    List<XTypeGroup>? acceptedTypeGroups,
+    SaveDialogOptions? options,
+  }) async {
+    return FileSaveLocation(saveFilePath);
   }
 }

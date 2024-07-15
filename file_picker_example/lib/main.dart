@@ -20,7 +20,9 @@ class FilePickerExample extends StatelessWidget {
 }
 
 class FilePickerHome extends StatefulWidget {
-  const FilePickerHome({super.key});
+  final VoidCallback? onWrite;
+
+  const FilePickerHome({super.key, this.onWrite});
 
   @override
   FilePickerHomeState createState() => FilePickerHomeState();
@@ -72,23 +74,23 @@ class FilePickerHomeState extends State<FilePickerHome> {
   }
 
   Future<void> _writeFile() async {
-    if (fileContent == null) return;
+    if (widget.onWrite != null) {
+      widget.onWrite!();
+    }
 
     if (kIsWeb) {
-      final fileName = await _promptFileName();
-      if (fileName != null) {
-        _downloadFileWeb(fileContent!, fileName);
-        print('File written successfully to web.');
+      final filename = await _promptFileName();
+      if (filename != null) {
+        _downloadFileWeb(fileContent!, filename);
       }
     } else {
-      final saveLocation = await getSaveLocation(
-        acceptedTypeGroups: [const XTypeGroup(label: 'any', extensions: [])],
-      );
+      const typeGroup = XTypeGroup(label: 'any', extensions: []);
+      final saveLocation =
+          await getSaveLocation(acceptedTypeGroups: [typeGroup]);
       if (saveLocation != null) {
         final path = saveLocation.path;
-        final file = XFile.fromData(fileContent!, name: path.split('/').last);
+        final file = XFile.fromData(fileContent!, name: path);
         await file.saveTo(path);
-        print('File written successfully to: $path');
       }
     }
   }
