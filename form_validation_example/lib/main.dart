@@ -55,7 +55,6 @@ class MyCustomFormState extends State<MyCustomForm> {
               if (value == null || value.isEmpty) {
                 return 'Please enter some text';
               }
-              // Simple email validation regex
               if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
                 return 'Please enter a valid email address';
               }
