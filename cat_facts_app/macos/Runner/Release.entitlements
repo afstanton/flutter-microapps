@@ -5,4 +5,9 @@
 	<key>com.apple.security.app-sandbox</key>
 	<true/>
 </dict>
+<key>NSAppTransportSecurity</key>
+<dict>
+    <key>NSAllowsArbitraryLoads</key>
+    <true/>
+</dict>
 </plist>
