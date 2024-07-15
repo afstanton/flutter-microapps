@@ -3,11 +3,13 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 void main() {
-  runApp(const CatFactsApp());
+  runApp(CatFactsApp(client: http.Client()));
 }
 
 class CatFactsApp extends StatelessWidget {
-  const CatFactsApp({super.key});
+  final http.Client client;
+
+  const CatFactsApp({super.key, required this.client});
 
   @override
   Widget build(BuildContext context) {
@@ -16,9 +18,9 @@ class CatFactsApp extends StatelessWidget {
         appBar: AppBar(
           title: const Text('Cat Facts App'),
         ),
-        body: const Padding(
-          padding: EdgeInsets.all(16.0),
-          child: CatFactsScreen(),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: CatFactsScreen(client: client),
         ),
       ),
     );
@@ -26,7 +28,9 @@ class CatFactsApp extends StatelessWidget {
 }
 
 class CatFactsScreen extends StatefulWidget {
-  const CatFactsScreen({super.key});
+  final http.Client client;
+
+  const CatFactsScreen({super.key, required this.client});
 
   @override
   _CatFactsScreenState createState() => _CatFactsScreenState();
@@ -36,7 +40,8 @@ class _CatFactsScreenState extends State<CatFactsScreen> {
   String _catFact = 'Press the button to get a cat fact!';
 
   Future<void> _getCatFact() async {
-    final response = await http.get(Uri.parse('https://catfact.ninja/fact'));
+    final response =
+        await widget.client.get(Uri.parse('https://catfact.ninja/fact'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
