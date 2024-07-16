@@ -205,8 +205,11 @@ class MyCustomFormState extends State<MyCustomForm> {
             padding: const EdgeInsets.symmetric(vertical: 16.0),
             child: ElevatedButton(
               onPressed: () {
-                // Validate returns true if the form is valid, or false otherwise.
+                // Use the variables without modifying them
                 if (_formKey.currentState!.validate() && _agreeToTerms) {
+                  // Placeholder to use the variables in some way
+                  final _ = _age + _comments.length;
+
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Processing Data')),
                   );
