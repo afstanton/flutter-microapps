@@ -39,14 +39,17 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _initializeNotifications() async {
     const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('app_icon');
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+
     final DarwinInitializationSettings initializationSettingsDarwin =
         DarwinInitializationSettings(
             onDidReceiveLocalNotification: (id, title, body, payload) async {
       // Handle iOS notification received logic here
     });
+
     const LinuxInitializationSettings initializationSettingsLinux =
         LinuxInitializationSettings(defaultActionName: 'Open notification');
+
     final InitializationSettings initializationSettings =
         InitializationSettings(
       android: initializationSettingsAndroid,
@@ -54,6 +57,7 @@ class _MyHomePageState extends State<MyHomePage> {
       macOS: initializationSettingsDarwin,
       linux: initializationSettingsLinux,
     );
+
     await flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) async {
@@ -74,10 +78,12 @@ class _MyHomePageState extends State<MyHomePage> {
       channelDescription: 'your channel description',
       importance: Importance.max,
       priority: Priority.high,
-      showWhen: false,
+      showWhen: true,
     );
+
     const NotificationDetails platformChannelSpecifics =
         NotificationDetails(android: androidPlatformChannelSpecifics);
+
     await flutterLocalNotificationsPlugin.show(
       0,
       'Hello!',
