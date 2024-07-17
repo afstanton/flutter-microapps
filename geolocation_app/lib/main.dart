@@ -8,22 +8,24 @@ void main() {
 }
 
 class GeolocationApp extends StatelessWidget {
-  const GeolocationApp({Key? key}) : super(key: key);
+  const GeolocationApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       home: GeolocationScreen(),
     );
   }
 }
 
 class GeolocationScreen extends StatefulWidget {
+  const GeolocationScreen({super.key});
+
   @override
-  _GeolocationScreenState createState() => _GeolocationScreenState();
+  GeolocationScreenState createState() => GeolocationScreenState();
 }
 
-class _GeolocationScreenState extends State<GeolocationScreen> {
+class GeolocationScreenState extends State<GeolocationScreen> {
   String _locationMessage = "Press the button to get location";
   String _addressMessage = "";
 
